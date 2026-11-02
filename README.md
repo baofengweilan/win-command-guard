@@ -1,4 +1,69 @@
-# Win Command Guard（Windows 命令护栏）
+[English](#win-command-guard) | [中文](#中文说明)
+
+# Win Command Guard
+
+> Keep AI agents from tripping over commands on Windows: a command guard forged from 4 real incidents, with one-click install and one-click self-check.
+
+## What problem it solves
+
+AI agents on Windows fail constantly when executing commands, and one failure often spirals into an "error loop" that burns tokens and time:
+
+| Failure scene | Root cause |
+|---|---|
+| `'rem' is not recognized as an internal or external command` (commands appear randomly shredded) | cmd parses UTF-8 `.bat` files line-by-line as GBK; LF-only line breaks split words apart |
+| Requests to URLs with a query string "silently lose parameters" | the outer cmd treats `&` inside the URL as a command separator and truncates it |
+| `python -c` nested quotes swallow output; `'Select-Object' is not recognized as a command` | the quote states of cmd and pwsh diverge; the "bare zone" gets taken over by cmd |
+| Chinese output turns into full-screen mojibake | the child process emits UTF-8 while the console decodes as GB2312; `-NoProfile` bypasses the profile's correction |
+
+All of the above come from real incident records (2026-10-04 ~ 10-21); the reproduction and fixes are documented in `references/pitfalls.md`.
+
+## Quick start (3 steps)
+
+```powershell
+winget install --id Microsoft.PowerShell -e                            # ① PowerShell 7 (MSI)
+pwsh -ExecutionPolicy Bypass -File scripts/install.ps1 -SetProfileUtf8 # ② one-click install
+pwsh -ExecutionPolicy Bypass -File scripts/selftest.ps1                # ③ self-check: all green ✓
+```
+
+Auto-registration for ZCode / Claude Code (idempotent, auto-backup); for other hosts see `references/porting.md`.
+
+## How it works
+
+```
+agent issues a tool call → host fires PreToolUse → guard (reads JSON from stdin)
+  ├─ safe     → exit 0, allow
+  └─ dangerous → exit 2, block + stderr gives the "standard fix" → agent passes on the first retry
+(JSON parse failure → allow: better to miss a block than to hurt a good command)
+```
+
+Four gates: ① enforce pwsh 7 ② .bat/.cmd encoding & line-break pre-check ③ bare `&` in URLs ④ quote escaping / pipe position (details in `SKILL.md`).
+
+## Files
+
+| File | Purpose |
+|---|---|
+| `SKILL.md` | skill entry: the agent reads this to know how to install and use it |
+| `scripts/enforce-pwsh.ps1` | the guard itself (PreToolUse hook, four gates) |
+| `scripts/install.ps1` | one-click install: auto-detects hosts, idempotent + auto-backup + read-back verification |
+| `scripts/uninstall.ps1` | one-click uninstall: removes only this skill's registration |
+| `scripts/selftest.ps1` | one-click self-check: syntax + 9 behavioral samples + encoding environment |
+| `scripts/time-context.py` | optional component: injects current time and A-share market session into the conversation |
+| `references/pitfalls.md` | pitfall handbook: the real incident and root cause behind every rule |
+| `references/porting.md` | porting guide: hook contract + host-by-host comparison + fallback for hookless hosts |
+| `LICENSE` | MIT |
+
+## Quality
+
+- `selftest.ps1`: syntax + 9 behavioral samples across the four gates, 10/10 passing on the dev machine;
+- the installer was verified on real machines and in sandbox config: idempotent (re-install creates no duplicates), others' configs fully preserved, backup before write, auto-restore if read-back verification fails.
+
+## License
+
+MIT (see `LICENSE`).
+
+---
+
+# 中文说明
 
 > 让 AI agent 在 Windows 上"命令不翻车"：4 道真实事故换来的命令护栏 + 一键安装 + 一键自检。
 
