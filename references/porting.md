@@ -70,7 +70,10 @@
 - 管道写在（外层）引号内；复杂脚本**先落成 `.ps1` 再 `-File` 跑**。
 - URL 里的 `&` 包进双引号（或先落 `.ps1`）。
 - 写 `.bat/.cmd`：GBK 可编码 + CRLF。
-- 涉及中文输出：**不要 `-NoProfile`**（或先设 `[Console]::OutputEncoding=UTF8`）。
+- 涉及中文输出：用标准模板 `pwsh -NoProfile -Command "[Console]::OutputEncoding=[Text.Encoding]::UTF8; Set-Location <绝对路径>; <原命令>"`（内联 UTF-8，`-NoProfile` 恒安全）。
+- 相同字符串多处替换：用编辑工具的 replace_all 一次完成，不要逐个改。
+- 短模式高频替换/筛选：pwsh 单引号 `-replace` / `Where-Object` 一行。
+- 大量不同内容 / 多层嵌套引号 / JSON 拼装：先落 `.ps1`（`.py`）再 `-File` 执行。
 
 ## 4. 前置依赖
 

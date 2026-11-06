@@ -51,5 +51,5 @@ description: 给 Windows 上的 AI coding agent 一键安装"命令护栏"：强
 **失败安全**：JSON 解析失败的输入一律放行——宁可漏拦，不误伤。
 
 ## 注意
-- 涉及中文输出的命令**不要用 `-NoProfile`**（会绕过 profile 的 UTF-8 设置而乱码）——护栏的拦截提示里也带这句提醒。
+- 护栏每条拦截都自带「标准改法」模板：`pwsh -NoProfile -Command "[Console]::OutputEncoding=[Text.Encoding]::UTF8; Set-Location <绝对路径>; <原命令>"` —— 模板**内联 UTF-8 输出编码**，用 `-NoProfile` 也不会中文乱码（2026-11-07 起，取代旧的"中文输出别用 -NoProfile"例外规则）。
 - 移植到其他宿主（事件名 / matcher / 进程型差异；无钩子机制宿主的退化方案）见 `references/porting.md`。

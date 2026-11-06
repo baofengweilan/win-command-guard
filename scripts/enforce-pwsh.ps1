@@ -18,6 +18,13 @@
 #       Select-Object 被 cmd 当程序跑）。内层字符串一律 pwsh 单引号；要双引号字面量/JSON/
 #       多层嵌套 → 先落 .ps1 再 -File 执行。
 #
+# 合规快车道（动手前先选对路，护栏是保险丝不是老师；2026-11-07 增）：
+#   · 相同字符串多处替换 → Edit 工具 replace_all 一次搞定，禁止逐个 Edit 刷次数。
+#   · 短模式高频替换/筛选 → pwsh 单引号 -replace / Where-Object 一行，别绕道逐个改。
+#   · 大量不同内容/多层嵌套引号/JSON 拼装 → 先用写文件工具落 .ps1（.py），再 pwsh -NoProfile -File 执行。
+#   · 标准命令模板（内联 UTF-8，中文输出恒安全，不依赖 profile）：
+#       pwsh -NoProfile -Command "[Console]::OutputEncoding=[Text.Encoding]::UTF8; Set-Location <绝对路径>; <原命令>"
+#
 # 注册方式：运行同目录 install.ps1（自动检测宿主并写入配置），或参考 references/porting.md 手工注册。
 
 $ErrorActionPreference = 'Stop'
@@ -72,13 +79,13 @@ $cmd = $toolInput.command
 if (-not $cmd) { exit 0 }
 
 # 规矩一：命令必须显式走 pwsh（禁 cmd 裸跑、禁老版 powershell）
+# 2026-11-07：标准模板内联 UTF-8 输出编码，-NoProfile 恒安全，删除"中文输出别用 -NoProfile"例外分支——
+#   例外靠模型现场判断，判断错就乱码返工一轮；内联后无分支可错。
 if ($cmd -notmatch '(?i)(^|[\s;&|(])pwsh(\.exe)?\s') {
     [Console]::Error.WriteLine(
-        '命令护栏拦截：命令必须用 pwsh 7 执行。改写为 pwsh -NoProfile -Command "Set-Location <绝对路径>; <原命令>" 后重试；' +
+        '命令护栏拦截：命令必须用 pwsh 7 执行。改写为 ' +
+        'pwsh -NoProfile -Command "[Console]::OutputEncoding=[Text.Encoding]::UTF8; Set-Location <绝对路径>; <原命令>" 后重试；' +
         '多步操作先 Set-Location 或用绝对路径。老版 powershell 同样禁用。内层字符串用 pwsh 单引号（禁 \" 转义，见规矩四）。'
-    )
-    [Console]::Error.WriteLine(
-        '注：涉及中文输出（如调用 Python 脚本）时不要用 -NoProfile——会绕过 profile 的 UTF-8 设置而乱码。'
     )
     exit 2
 }
