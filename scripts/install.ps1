@@ -31,6 +31,7 @@ function Info($m) { Write-Host ('[win-command-guard] ' + $m) }
 New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null
 Copy-Item (Join-Path $src 'enforce-pwsh.ps1') $InstallDir -Force
 $guardPath = Join-Path $InstallDir 'enforce-pwsh.ps1'
+Unblock-File -LiteralPath $guardPath -ErrorAction SilentlyContinue
 Info ('护栏脚本就位: ' + $guardPath)
 
 $pythonExe = $null
@@ -42,13 +43,14 @@ if ($WithTimeContext) {
   } else {
     Copy-Item (Join-Path $src 'time-context.py') $InstallDir -Force
     $timePath = Join-Path $InstallDir 'time-context.py'
+    Unblock-File -LiteralPath $timePath -ErrorAction SilentlyContinue
     Info ('时间注入组件就位: ' + $timePath)
   }
 }
 
 # ---------- 2) profile UTF-8（可选） ----------
 if ($SetProfileUtf8) {
-  $prof = Join-Path $env:USERPROFILE 'Documents\PowerShell\Microsoft.PowerShell_profile.ps1'
+  $prof = Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'PowerShell\Microsoft.PowerShell_profile.ps1'
   $profDir = Split-Path $prof
   if (-not (Test-Path $profDir)) { New-Item -ItemType Directory -Path $profDir -Force | Out-Null }
   $has = (Test-Path $prof) -and ((Get-Content $prof -Raw) -match 'Console\]::OutputEncoding')

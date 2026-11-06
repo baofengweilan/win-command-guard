@@ -17,15 +17,28 @@ AI agents on Windows fail constantly when executing commands, and one failure of
 
 All of the above come from real incident records (2026-10-04 ~ 10-21); the reproduction and fixes are documented in `references/pitfalls.md`.
 
-## Quick start (3 steps)
+## Quick start
+
+**Prerequisites**: Windows 10+ (x64); access to GitHub (use a mirror if downloads are blocked); admin rights for step ① (or accept the UAC prompt).
 
 ```powershell
-winget install --id Microsoft.PowerShell -e                            # ① PowerShell 7 (MSI)
-pwsh -ExecutionPolicy Bypass -File scripts/install.ps1 -SetProfileUtf8 # ② one-click install
-pwsh -ExecutionPolicy Bypass -File scripts/selftest.ps1                # ③ self-check: all green ✓
+# ⓪ get this package and enter it
+git clone https://github.com/baofengweilan/win-command-guard.git
+cd win-command-guard
+
+# ① install PowerShell 7 (MSI; open a NEW terminal afterwards so `pwsh` is on PATH)
+winget install --id Microsoft.PowerShell -e --accept-source-agreements --accept-package-agreements
+
+# ② one-click install (auto-registers for ZCode / Claude Code; other hosts get a pointer to references/porting.md)
+pwsh -ExecutionPolicy Bypass -File scripts\install.ps1 -SetProfileUtf8
+
+# ③ self-check (validates the guard itself: four-gate behavioral samples)
+pwsh -ExecutionPolicy Bypass -File scripts\selftest.ps1
 ```
 
-Auto-registration for ZCode / Claude Code (idempotent, auto-backup); for other hosts see `references/porting.md`.
+Two notes:
+- The self-check validates the **guard itself**; to confirm the **hook is actually wired into your host**, restart the host and run a live probe — have the agent run a command that does not start with `pwsh`; it should get blocked with the standard fix.
+- Other hosts: the guard files land in `%USERPROFILE%\.win-command-guard\`; wire them into your host per the contract in `references/porting.md`. Agents that support skills can also read `SKILL.md` and install themselves.
 
 ## How it works
 
@@ -80,15 +93,28 @@ AI agent 在 Windows 上执行命令时高频翻车，且一翻车就进入"报�
 
 以上均来自真实事故记录（2026-10-04 ~ 10-21），复现与修复过程见 `references/pitfalls.md`。
 
-## 快速开始（3 步）
+## 快速开始
+
+**前提**：Windows 10+（x64）；能访问 GitHub（下载被卡时用镜像或 Release 附件）；第 ① 步需要管理员权限（或允许 UAC 弹窗）。
 
 ```powershell
-winget install --id Microsoft.PowerShell -e                            # ① PowerShell 7（MSI 版）
-pwsh -ExecutionPolicy Bypass -File scripts/install.ps1 -SetProfileUtf8 # ② 一键安装
-pwsh -ExecutionPolicy Bypass -File scripts/selftest.ps1                # ③ 自检：全绿 ✓
+# ⓪ 获取本包并进入目录
+git clone https://github.com/baofengweilan/win-command-guard.git
+cd win-command-guard
+
+# ① 安装 PowerShell 7（MSI 版；装完【新开一个终端】，pwsh 才会进 PATH）
+winget install --id Microsoft.PowerShell -e --accept-source-agreements --accept-package-agreements
+
+# ② 一键安装（ZCode / Claude Code 自动注册；其他宿主会提示按 references/porting.md 手工接入）
+pwsh -ExecutionPolicy Bypass -File scripts\install.ps1 -SetProfileUtf8
+
+# ③ 自检（验证护栏本体：四道闸行为样例）
+pwsh -ExecutionPolicy Bypass -File scripts\selftest.ps1
 ```
 
-支持 ZCode / Claude Code 自动注册（幂等、自动备份）；其他宿主见 `references/porting.md`。
+两点说明：
+- 自检验证的是**护栏本体**；「宿主是否真的挂上了钩子」请重启宿主后实测一次——让 agent 跑一条不以 pwsh 开头的命令，应被拦下并给出标准改法。
+- 非 ZCode / Claude Code 宿主：护栏文件已就位（`%USERPROFILE%\.win-command-guard\`），按 `references/porting.md` 的契约接入你的宿主即可；支持 Skill 的 agent 也可以直接读 `SKILL.md` 自助安装。
 
 ## 工作原理
 

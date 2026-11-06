@@ -25,7 +25,7 @@ function Add-Result($name, $expected, $actual, $pass) {
 }
 function Invoke-Guard($json) {
   # 返回 @(退出码, 输出文本)
-  $out = $json | & pwsh -NoProfile -File $Guard 2>&1
+  $out = $json | & pwsh -NoProfile -ExecutionPolicy Bypass -File $Guard 2>&1
   return @($LASTEXITCODE, ($out -join ' '))
 }
 

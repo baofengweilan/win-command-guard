@@ -22,9 +22,10 @@ description: 给 Windows 上的 AI coding agent 一键安装"命令护栏"：强
 - 新机器初始化，想提前预防以上全部问题
 
 ## 使用步骤
-1. **前置**：确认已装 PowerShell 7（**MSI 版**，不要从商店装 MSIX）：
+0. **获取本包**：`git clone https://github.com/baofengweilan/win-command-guard.git` 并 `cd` 进包目录（或从技能市场安装后进入技能目录）。
+1. **前置**：确认已装 PowerShell 7（**MSI 版**，不要从商店装 MSIX；装完【新开一个终端】让 `pwsh` 进 PATH；需管理员或允许 UAC）：
    ```powershell
-   winget install --id Microsoft.PowerShell -e
+   winget install --id Microsoft.PowerShell -e --accept-source-agreements --accept-package-agreements
    ```
 2. **安装**（在包根目录执行）：
    ```powershell
@@ -35,7 +36,7 @@ description: 给 Windows 上的 AI coding agent 一键安装"命令护栏"：强
    ```powershell
    pwsh -ExecutionPolicy Bypass -File scripts/selftest.ps1
    ```
-   应显示「全部通过 ✓」。
+   应显示「全部通过 ✓」。自检验证的是**护栏本体**；「宿主是否挂上了钩子」请重启宿主后实测一次（让 agent 跑一条不以 pwsh 开头的命令，应被拦下）。
 4. **重启宿主 agent**，钩子生效。
 
 ## 护栏规则（四道闸）
