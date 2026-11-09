@@ -75,6 +75,7 @@
 - 短模式高频替换/筛选：pwsh 单引号 `-replace` / `Where-Object` 一行。
 - 大量不同内容 / 多层嵌套引号 / JSON 拼装：先落 `.ps1`（`.py`）再 `-File` 执行。
 - 绝不在 PATH 放置冒充系统命令（`powershell` / `cmd`）的 shim——PATH 全机器共享，会误伤安装器与引导器；AI 用 7 靠显式 `pwsh`，不靠改系统的名字。
+- 路径类参数用 `Join-Path` 拼接；URL/参数整体单引号——别在字符串里手写引号转义。
 
 ## 4. 前置依赖
 

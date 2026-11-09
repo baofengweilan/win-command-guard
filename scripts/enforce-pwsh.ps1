@@ -131,8 +131,8 @@ if ($cmd -match '\\"' -or $cmd -match '""') {
     [Console]::Error.WriteLine(
         '命令护栏拦截：-Command 内层不要出现 \" 或 ""——cmd 的引号状态会和 pwsh 分叉，' +
         '裸露区里的 | & % 会被 cmd 当自己的语法执行。内层字符串一律用 pwsh 单引号，' +
-        '如 Write-Host (''PUSH_EXIT='' + $LASTEXITCODE)；需要双引号字面量/JSON/多层嵌套，' +
-        '先用写文件工具落成 .ps1 再 pwsh -NoProfile -File 执行。'
+        '如 Write-Host (''PUSH_EXIT='' + $LASTEXITCODE)；路径用 Join-Path 拼、URL/参数整体单引号；' +
+        '需要双引号字面量/JSON/多层嵌套，先用写文件工具落成 .ps1 再 pwsh -NoProfile -File 执行。'
     )
     exit 2
 }
