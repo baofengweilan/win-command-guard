@@ -15,7 +15,7 @@ AI agents on Windows fail constantly when executing commands, and one failure of
 | `python -c` nested quotes swallow output; `'Select-Object' is not recognized as a command` | the quote states of cmd and pwsh diverge; the "bare zone" gets taken over by cmd |
 | Chinese output turns into full-screen mojibake | the child process emits UTF-8 while the console decodes as GB2312; `-NoProfile` bypasses the profile's correction |
 
-All of the above come from real incident records (2026-10-04 ~ 10-21); the reproduction and fixes are documented in `references/pitfalls.md`.
+All of the above come from real incident records (2026-10-04 ~ 11-07); the reproduction and fixes are documented in `references/pitfalls.md`.
 
 ## Quick start
 
@@ -91,7 +91,7 @@ AI agent 在 Windows 上执行命令时高频翻车，且一翻车就进入"报�
 | `python -c` 嵌套引号输出被吞；`'Select-Object' 不是内部或外部命令` | cmd 与 pwsh 引号状态分叉，"裸露区"被 cmd 接管 |
 | 中文输出满屏乱码（"汽修二班"→"姹戒慨浜岀彮"） | 子进程输出 UTF-8、控制台按 GB2312 解码；`-NoProfile` 绕过了 profile 的修正 |
 
-以上均来自真实事故记录（2026-10-04 ~ 10-21），复现与修复过程见 `references/pitfalls.md`。
+以上均来自真实事故记录（2026-10-04 ~ 11-07），复现与修复过程见 `references/pitfalls.md`。
 
 ## 快速开始
 
